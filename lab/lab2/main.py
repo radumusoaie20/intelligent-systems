@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 
 
-from conway import ConwayGame
-from lab.lab2.conway import OriginalRulesApplier, SimpleValueFinder
+from conway.conway import ConwayGame
+from lab.lab2.conway.conway import OriginalRulesApplier, SimpleValueFinder
 
 value_finder = SimpleValueFinder()
 

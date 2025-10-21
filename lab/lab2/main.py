@@ -1,6 +1,13 @@
-from conway import ConwayGame
-
-game = ConwayGame(5, 6)
+import matplotlib.pyplot as plt
 
 
-print(game.world)
+from conway.conway import ConwayGame
+from lab.lab2.conway.conway import OriginalRulesApplier, SimpleValueFinder
+
+value_finder = SimpleValueFinder()
+
+ruleApplier = OriginalRulesApplier(value_finder)
+
+game = ConwayGame(15,15, ruleApplier, "config1", iterations=60)
+
+game.run()

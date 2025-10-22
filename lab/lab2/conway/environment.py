@@ -1,28 +1,21 @@
 import random
 from lab.lab2.conway.cell import Cell
+from lab.lab2.conway.neighbour import StandardNeighbourFinder
+
 
 class Environment:
-    def __init__(self, width, height):
+    def __init__(self, width, height, neighbour_finder=None):
         self.width = width
         self.height = height
         self.grid = [[Cell(x, y, random.randint(0, 1)) for y in range(height)] for x in range(width)]
-
+        self.finder = neighbour_finder or StandardNeighbourFinder()
 
 
     def get_neighbors(self, x, y):
         """Returns the neighbors of the cell at (x, y).
         :param x: x coordinate
         :param y: y coordinate"""
-        directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
-        neighbors = []
-
-        for dx, dy in directions:
-            nx, ny = x + dx, y + dy
-
-            if 0 <= nx < self.width and 0 <= ny < self.height:
-                neighbors.append(self.grid[nx][ny])
-
-        return neighbors
+        return self.finder.find_neighbours(x, y, self)
 
     def step(self):
         """Updates the environment based on the current cell states."""

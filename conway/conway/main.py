@@ -1,6 +1,6 @@
-from lab.lab2.conway.neighbour import ToroidNeighbourFinder
-from  lab.lab2.conway.simulator import ConwaySimulator
-from lab.lab2.conway.strategy import ConwayStrategy, HighwayStrategy
+from  conway.conway.simulator import ConwaySimulator
+from conway.conway.strategy import ConwayStrategy
+from conway.conway.neighbour import ToroidNeighbourFinder
 
 initial_state = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],

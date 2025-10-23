@@ -1,4 +1,4 @@
-import lab.lab2.conway.strategy as s
+import conway.conway.strategy as s
 
 
 class Cell:
@@ -20,4 +20,7 @@ class Cell:
         :param env: Environment object (The grid)
         """
         return self.strategy.next_state(self, env)
+
+    def __str__(self):
+        return str(self.state)
 

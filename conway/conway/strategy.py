@@ -25,7 +25,7 @@ class ConwayStrategy(LifeStrategy):
             return 0
 
 
-class HighwayStrategy(LifeStrategy):
+class HighLifeStrategy(LifeStrategy):
     def next_state(self, cell, env):
         neighbors = cell.perceive(env)
         alive_neighbors = sum(n.state for n in neighbors)

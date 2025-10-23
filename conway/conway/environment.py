@@ -1,13 +1,13 @@
 import random
-from lab.lab2.conway.cell import Cell
-from lab.lab2.conway.neighbour import StandardNeighbourFinder
+from conway.conway.cell import Cell
+from conway.conway.neighbour import StandardNeighbourFinder
 
 
 class Environment:
     def __init__(self, width, height, neighbour_finder=None):
         self.width = width
         self.height = height
-        self.grid = [[Cell(x, y, random.randint(0, 1)) for y in range(height)] for x in range(width)]
+        self.grid = [[Cell(x, y, random.randint(0, 1)) for x in range(height)] for y in range(width)]
         self.finder = neighbour_finder or StandardNeighbourFinder()
 
 

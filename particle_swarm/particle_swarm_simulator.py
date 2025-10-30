@@ -1,8 +1,9 @@
 import copy
-from random import random
+from random import random, uniform
 
 import numpy as np
 from fontTools.designspaceLib.types import clamp
+from fontTools.unicodedata import block
 from matplotlib import pyplot as plt
 from matplotlib.animation import FuncAnimation
 
@@ -87,13 +88,30 @@ class ParticleSwarm:
         phi_p = self.local_weight
         phi_g = self.global_weight
         for p in self.particles:
+
+            # d=0: x, d=1: y
             for d in range(2):
                 rp = random()
                 rg = random()
                 p.velocity[d] = int(w * p.velocity[d] + phi_p * rp * (p.local[d] - p.position[d]) + phi_g * rg * (self.best[d] - p.position[d]))
 
-            p.position[0] = clamp(p.position[0] + p.velocity[0], 0, self.width - 1)
-            p.position[1] = clamp(p.position[1] + p.velocity[1], 0, self.height - 1)
+
+            # Update positions but reflect the velocity in case a particle gets stuck in a corner (like a bounce effect, but with dampening factor)
+            damping_factor = 0.7
+
+            for d, max_val in zip(range(2), [self.width, self.height]):
+                p.position[d] += int(p.velocity[d])
+
+                # Handling edges
+                if p.position[d] < 0:
+                    p.position[d] = 0
+                    p.velocity[d] = -damping_factor * p.velocity[d] + uniform(-1, 1) # add a bit of randomness
+
+                elif p.position[d] >= max_val:
+                    p.position[d] = max_val - 1
+                    p.velocity[d] = -damping_factor * p.velocity[d] + uniform(-1, 1)
+
+
 
             if self.search_minimum:
                 if self.f(p.position) < self.f(p.local):
@@ -157,7 +175,7 @@ class ParticleSwarm:
 
 
         self.anim = FuncAnimation(
-            self.fig, update, frames=len(frames), interval=frame_interval
+            self.fig, func=update, frames=len(frames), interval=frame_interval
         )
 
         if save_path:
@@ -165,7 +183,7 @@ class ParticleSwarm:
         else:
             plt.show()
 
-        return self.best, self.f(self.best)
+        return self.anim, (self.best, self.f(self.best))
 
 
 

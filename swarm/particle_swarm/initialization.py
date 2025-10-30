@@ -1,5 +1,5 @@
 import random
-from particle import Particle
+from swarm.particle_swarm.particle import Particle
 
 
 class ParticleInitialization:

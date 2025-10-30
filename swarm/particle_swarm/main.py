@@ -1,6 +1,6 @@
-import particle_swarm_simulator as ps
-import simulation_terminator as st
-from strategy import PerlinNoiseMapStrategy
+import swarm.particle_swarm.particle_swarm_simulator as ps
+import swarm.particle_swarm.simulation_terminator as st
+from swarm.particle_swarm.strategy import PerlinNoiseMapStrategy
 from swarm.particle_swarm.initialization import UniformParticleInitialization
 
 swarm = ps.ParticleSwarm(200, 200,

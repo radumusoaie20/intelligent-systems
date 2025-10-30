@@ -4,10 +4,10 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-from dir_util import make_file_dir_if_not_exist
-from initialization import ParticleInitialization, RandomParticleInitialization
-from simulation_terminator import SimulationTerminator, IterationTerminator
-from strategy import MapStrategy, PerlinNoiseMapStrategy
+from swarm.particle_swarm.dir_util import make_file_dir_if_not_exist
+from swarm.particle_swarm.initialization import ParticleInitialization, RandomParticleInitialization
+from swarm.particle_swarm.simulation_terminator import SimulationTerminator, IterationTerminator
+from swarm.particle_swarm.strategy import MapStrategy, PerlinNoiseMapStrategy
 
 class ParticleSwarm:
     def __init__(self, grid_width,  grid_height,

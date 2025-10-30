@@ -1,6 +1,6 @@
 class SimulationTerminator:
     def shall_terminate(self, simulation):
-        pass
+        raise NotImplementedError
 
 
 class IterationTerminator(SimulationTerminator):

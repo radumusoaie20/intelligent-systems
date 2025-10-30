@@ -1,20 +1,13 @@
-import copy
 from random import random, uniform
 
 import numpy as np
-from fontTools.designspaceLib.types import clamp
-from fontTools.unicodedata import block
 from matplotlib import pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-from particle_swarm.initialization import ParticleInitialization, RandomParticleInitialization
-from particle_swarm.simulation_terminator import SimulationTerminator, IterationTerminator
+from dir_util import make_file_dir_if_not_exist
+from initialization import ParticleInitialization, RandomParticleInitialization
+from simulation_terminator import SimulationTerminator, IterationTerminator
 from strategy import MapStrategy, PerlinNoiseMapStrategy
-
-
-
-# Input params
-
 
 class ParticleSwarm:
     def __init__(self, grid_width,  grid_height,
@@ -26,7 +19,10 @@ class ParticleSwarm:
                 initialization_strategy: ParticleInitialization = RandomParticleInitialization(),
                 search_minimum = False,
                 simulation_terminator: SimulationTerminator = IterationTerminator(100),
-                particle_size: int = 5):
+                particle_size: int = 5,
+                velocity_max_magnitude=None,
+                random_local: float = None,
+                random_global: float = None):
         """
         Initializes a number of particles for the given grid of the given size
         :param grid_width: The width of the grid
@@ -41,12 +37,22 @@ class ParticleSwarm:
         :param search_minimum: If true, the particles will tend towards the minimum value in the grid, otherwise towards the maximum value
         :param simulation_terminator: The simulation terminator
         :param particle_size: The size of the particles when rendered
+        :param velocity_max_magnitude The maximum allowed magnitude for a particle velocity. If the particle's velocity magnitude exceeds this,
+        then it will normalize the vector to be equal to it. By default, it is set to `None` and won't apply any normalization.
+        :param random_local: If set to a float value, it will influence the result the particle's best known local position has on the velocity. If not set (`None`),
+        then it will be chosen randomly for each velocity update.
+        :param random_global: If set to a float value, it will influence the result the best known global position has on a particle's velocity. If not set (`None`),
+        then it will be chosen randomly for each velocity update.
         """
 
+        self.velocity_max_magnitude = velocity_max_magnitude
         self.anim = None
         self.width = grid_width
         self.height = grid_height
         self.strategy = map_strategy or PerlinNoiseMapStrategy(5, 10)
+
+        self.rp = random_local
+        self.rg = random_global
 
         self.grid = self.strategy.initialize_map(self.width, self.height)
 
@@ -91,10 +97,36 @@ class ParticleSwarm:
 
             # d=0: x, d=1: y
             for d in range(2):
-                rp = random()
-                rg = random()
-                p.velocity[d] = int(w * p.velocity[d] + phi_p * rp * (p.local[d] - p.position[d]) + phi_g * rg * (self.best[d] - p.position[d]))
 
+                if self.rp is not None:
+                    rp = self.rp
+                else:
+                    rp = random()
+
+                if self.rg is not None:
+                    rg = self.rg
+                else: rg = random()
+
+                p.velocity[d] = w * p.velocity[d] + phi_p * rp * (p.local[d] - p.position[d]) + phi_g * rg * (self.best[d] - p.position[d])
+
+
+            # Normalize the velocity vector if possible
+            if self.velocity_max_magnitude is not None:
+
+                # If we have a vector v = (a, b), then norm(v) = sqrt(a^2 + b^2)
+                # If we want to have another vector w = s * v, where s is a scalar and norm(w) = t, then
+                # we have norm(w) = norm(s * v) = s * norm(v) = t, from which we can say that
+                # s = t/norm(v)
+                # so the vector we are looking for is w = t / norm(v) * v, where t is our desired magnitude and v is our velocity vector
+
+                vel = np.array(p.velocity, dtype = float)
+                norm_vec = np.linalg.norm(vel)
+                # this only happens if we exceed the maximum magnitude
+                if norm_vec > self.velocity_max_magnitude:
+                    vel = (vel * self.velocity_max_magnitude) / norm_vec # multiplication first to not truncate results from the division
+
+                p.velocity[0] = float(vel[0])
+                p.velocity[1] = float(vel[1])
 
             # Update positions but reflect the velocity in case a particle gets stuck in a corner (like a bounce effect, but with dampening factor)
             damping_factor = 0.7
@@ -102,15 +134,14 @@ class ParticleSwarm:
             for d, max_val in zip(range(2), [self.width, self.height]):
                 p.position[d] += int(p.velocity[d])
 
-                # Handling edges
+                # Handling edges (bounce back)
                 if p.position[d] < 0:
                     p.position[d] = 0
-                    p.velocity[d] = -damping_factor * p.velocity[d] + uniform(-1, 1) # add a bit of randomness
+                    p.velocity[d] = -damping_factor * p.velocity[d] + uniform(-0.2, 0.2) # add a bit of randomness to encourage exploration
 
                 elif p.position[d] >= max_val:
                     p.position[d] = max_val - 1
-                    p.velocity[d] = -damping_factor * p.velocity[d] + uniform(-1, 1)
-
+                    p.velocity[d] = -damping_factor * p.velocity[d] + uniform(-0.2, 0.2)
 
 
             if self.search_minimum:
@@ -155,7 +186,7 @@ class ParticleSwarm:
         return frames
 
 
-    def run(self, frame_interval=50, save_path=None, verbose=False):
+    def run(self, frame_interval=50, save_path: str=None, verbose=False):
         """
         Runs the simulation
         :param frame_interval: The interval between each frame
@@ -179,6 +210,7 @@ class ParticleSwarm:
         )
 
         if save_path:
+            make_file_dir_if_not_exist(save_path)
             self.anim.save(save_path)
         else:
             plt.show()

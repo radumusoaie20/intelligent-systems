@@ -5,7 +5,3 @@ class Particle:
 
         self.local = self.position.copy()
         self.velocity = velocity
-
-    def __str__(self):
-        x, y = self.position
-        return f'({x}, {y}), v={self.value}'

@@ -1,9 +1,8 @@
-import numpy as np
 from perlin_noise import PerlinNoise
 
 class MapStrategy:
     def initialize_map(self, width: int, height:  int):
-        pass
+        raise NotImplementedError
 
 
 class PerlinNoiseMapStrategy(MapStrategy):

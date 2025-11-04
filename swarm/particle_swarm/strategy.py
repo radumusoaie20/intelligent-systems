@@ -2,7 +2,7 @@ from perlin_noise import PerlinNoise
 
 class MapStrategy:
     def initialize_map(self, width: int, height:  int):
-        pass
+        raise NotImplementedError
 
 
 class PerlinNoiseMapStrategy(MapStrategy):
@@ -12,6 +12,6 @@ class PerlinNoiseMapStrategy(MapStrategy):
 
 
     def initialize_map(self, width: int, height: int):
-        return [[self.noise([x, y]) for x in range(width)] for y in range(height) ]
+        return [[self.noise([x/width, y/height]) for y in range(width)] for x in range(height)]
 
 

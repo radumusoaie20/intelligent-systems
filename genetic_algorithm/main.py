@@ -11,7 +11,9 @@ ga_onemax = GeneticAlgorithm(
     mutation_func=ex.bit_flip_mutation,
     crossover_rate=0.8,
     mutation_rate=0.05,
-    elitism_count=2
+    elitism_count=10,
+    explorative_elitism=False,
+    minimize_solution=False
 )
 
-best_ind, best_fit = ga_onemax.run(num_generations=50, verbose=True)
+best_ind, best_fit = ga_onemax.run(num_generations=100, verbose=True)

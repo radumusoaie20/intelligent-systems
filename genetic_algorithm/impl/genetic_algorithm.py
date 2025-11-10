@@ -156,7 +156,6 @@ class GeneticAlgorithm:
 
         if verbose:
             print("\nOptimization finished.")
-            print(f"Best Global individual: {self.best_global_individual}")
             print(f"Best Global fitness: {self.best_global_fitness}")
 
         return self.best_global_individual, self.best_global_fitness

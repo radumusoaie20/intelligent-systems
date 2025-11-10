@@ -127,23 +127,23 @@ def make_fitness_func(day_start: Time, day_end: Time):
 
                 # Room conflict (both sections take place in the same room at approximately the same time)
                 if a.room == b.room and not (a.is_before(b) or a.is_after(b)):
-                    penalty += 1000
+                    penalty += 10000
 
                 # Professor conflict (the sections are being taught by the same professor at approximately the same time)
                 if a.section.professor == b.section.professor and not (a.is_before(b) or a.is_after(b)):
-                    penalty += 1000
+                    penalty += 10000
 
                 # Group conflict (a group takes two sections at the same time)
                 if not a.section.group.isdisjoint(b.section.group) and not (a.is_before(b) or a.is_after(b)):
-                    penalty += 1000
+                    penalty += 10000
 
         # Soft constraints (Help with optimization)
 
         # Minimize professor gaps
-        penalty += professor_idle_penalty(chromosome, day_start, day_end) * 9
+        penalty += professor_idle_penalty(chromosome, day_start, day_end) * 7
 
         # Minimize groups gaps
-        penalty += group_idle_penalty(chromosome, day_start, day_end) * 4
+        penalty += group_idle_penalty(chromosome, day_start, day_end) * 3
 
         # Penalize placing a small number of students in big rooms
         penalty += room_size_penalty(chromosome) * 2
@@ -173,9 +173,9 @@ def professor_idle_penalty(chromosome: list[SectionSchedule], day_start: Time, d
 
            # Gap before first class
            first = day_sections[0]
-           penalty += int(first.time_start - first.section.professor.start_hour)
+           penalty += int(first.time_start - first.section.professor.start_hour) // 60
 
-           # Gap between consecutives classes
+           # Gap between consecutive classes
            day_sections.sort(key=lambda s: int(s.time_start)) # sorting within the day
 
            for i in range(len(day_sections) - 1):
@@ -188,7 +188,7 @@ def professor_idle_penalty(chromosome: list[SectionSchedule], day_start: Time, d
 
             # Gap between last class and end
             last = day_sections[-1]
-            penalty += int(last.section.professor.end_hour - last.time_end)
+            penalty += int(last.section.professor.end_hour - last.time_end) // 60
 
     return penalty
 
@@ -213,7 +213,7 @@ def group_idle_penalty(chromosome: list[SectionSchedule], day_start: Time, day_e
 
             # Gap before first class
             first = day_sections[0]
-            penalty += int(first.time_start - day_start)
+            penalty += int(first.time_start - day_start) // 60
 
             day_sections.sort(key=lambda s: int(s.time_start))
 
@@ -226,7 +226,7 @@ def group_idle_penalty(chromosome: list[SectionSchedule], day_start: Time, day_e
 
             # Gap between last class and end
             last = day_sections[-1]
-            penalty += int(day_end - last.time_end)
+            penalty += int(day_end - last.time_end) // 60
 
     return penalty
 

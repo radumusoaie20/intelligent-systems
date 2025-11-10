@@ -77,7 +77,8 @@ professors = [
     prof_andrei, prof_florea, prof_bratu, prof_daniel,
     prof_neghina, prof_matei, prof_liviu,
     prof_beleiu, prof_berghia, prof_zabava, prof_catalina, prof_pitic,
-    prof_constantinescu, prof_serbanescu, prof_cretulescu, prof_breazu
+    prof_constantinescu, prof_serbanescu, prof_cretulescu, prof_breazu,
+    prof_brad, prof_barglazan
 ]
 
 # Subiecte
@@ -239,19 +240,20 @@ fitness_func = make_fitness_func(day_start, day_end)
 
 # GA
 ga = GeneticAlgorithm(
-    population_size=35,
+    population_size=50,
     fitness_func=fitness_func,
     create_individual_func=create_individual,
     selection_func=select_func,
     crossover_func=crossover_func,
     mutation_func=mutation_func,
     crossover_rate=0.7,
-    mutation_rate=0.4,
+    mutation_rate=0.8,
     elitism_count=4,
+    explorative_elitism=False,
     minimize_solution=False
 )
 
-best, best_f = ga.run(num_generations=50, verbose=True)
+best, best_f = ga.run(num_generations=100, verbose=True)
 
 print(f"Gasit configuratia cu scor: {best_f}")
 

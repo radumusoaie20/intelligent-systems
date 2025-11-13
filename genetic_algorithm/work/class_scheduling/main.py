@@ -250,7 +250,7 @@ ga = GeneticAlgorithm(
     mutation_rate=0.8,
     elitism_count=4,
     explorative_elitism=False,
-    minimize_solution=False
+    minimize_solution=True
 )
 
 best, best_f = ga.run(num_generations=100, verbose=True)
@@ -258,4 +258,4 @@ best, best_f = ga.run(num_generations=100, verbose=True)
 print(f"Gasit configuratia cu scor: {best_f}")
 
 # Interactive tabular views
-interactive_schedule(best, day_start, day_end, duration, pause_time, groups, professors)
+interactive_schedule(best, day_start, day_end, duration, pause_time, groups, professors, rooms)

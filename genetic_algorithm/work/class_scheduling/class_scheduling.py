@@ -127,20 +127,20 @@ def make_fitness_func(day_start: Time, day_end: Time):
 
                 # Room conflict (both sections take place in the same room at approximately the same time)
                 if a.room == b.room and not (a.is_before(b) or a.is_after(b)):
-                    penalty += 10000
+                    penalty += 1000
 
                 # Professor conflict (the sections are being taught by the same professor at approximately the same time)
                 if a.section.professor == b.section.professor and not (a.is_before(b) or a.is_after(b)):
-                    penalty += 10000
+                    penalty += 1000
 
                 # Group conflict (a group takes two sections at the same time)
                 if not a.section.group.isdisjoint(b.section.group) and not (a.is_before(b) or a.is_after(b)):
-                    penalty += 10000
+                    penalty += 1000
 
         # Soft constraints (Help with optimization)
 
         # Minimize professor gaps
-        penalty += professor_idle_penalty(chromosome, day_start, day_end) * 7
+        penalty += professor_idle_penalty(chromosome, day_start, day_end) * 4
 
         # Minimize groups gaps
         penalty += group_idle_penalty(chromosome, day_start, day_end) * 3
@@ -148,7 +148,11 @@ def make_fitness_func(day_start: Time, day_end: Time):
         # Penalize placing a small number of students in big rooms
         penalty += room_size_penalty(chromosome) * 2
 
-        return 1 / (1 + penalty) # when penalty is high, the value is low, so that means higher fitness means worse solution (maximizing)
+        # we want to maximize this
+        # when penalty is 0, we have a value of 1, meaning a perfect solution (no penalties)
+        # as it tends towards 0, we have worse solutions
+        return 1 / (1 + penalty)
+
 
     return fitness_func
 

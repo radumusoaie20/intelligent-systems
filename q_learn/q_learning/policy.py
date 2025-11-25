@@ -39,12 +39,13 @@ class EpsilonGreedyPolicy(Policy):
         self.decay_function = epsilon_decay_function if epsilon_decay_function else lambda ep: epsilon
 
     def select_action(self, state, q_table, env, episode: int = 0):
-        if np.random.rand() < self.epsilon:
-            action = env.action_space.sample() # exploring
-        else:
-            action = np.argmax(q_table[state])
 
         self.epsilon = self.decay_function(episode)
+
+        if np.random.uniform() < self.epsilon:
+            action = env.action_space.sample() # :exploring
+        else:
+            action = np.argmax(q_table[state])
 
         return action
 

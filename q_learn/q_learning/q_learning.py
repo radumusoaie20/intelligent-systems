@@ -31,8 +31,12 @@ class QLearning:
 
         self.shall_record = shall_record
 
+
         n_states = env.observation_space.n
         n_actions = env.action_space.n
+
+        self.number_of_states = n_states
+        self.number_of_actions = n_actions
 
         self.q_table = np.zeros((n_states, n_actions))
 
@@ -46,11 +50,23 @@ class QLearning:
 
         pass
 
+    def reset_table(self):
+        self.q_table = np.zeros((self.number_of_states, self.number_of_actions))
 
-    def run(self, number_of_episodes: int = 5, verbose: bool = False):
+    def run(self, number_of_episodes: int = 5, reset_seed=0):
+
+        # reset Q-Table between runs
+        self.reset_table()
+
+        # Returned data
+        rewards = np.zeros(number_of_episodes)
+        steps = np.zeros(number_of_episodes)
+
         for episode_num in range(number_of_episodes):
 
-            state, info = self.env.reset()
+            state, info = self.env.reset(seed=reset_seed)
+            step = 0
+            total_rewards = 0
 
             episode_over = False
             while not episode_over:
@@ -58,7 +74,6 @@ class QLearning:
                 action = self.policy.select_action(state, self.q_table, self.env, episode_num)
 
                 next_state, reward, terminated, truncated, info = self.env.step(action)
-
 
                 # Update Q-Learning table
                 delta = (
@@ -72,12 +87,15 @@ class QLearning:
 
                 state = next_state
 
+                step += 1
+                total_rewards += reward
+
                 episode_over = truncated or terminated
 
-            if verbose:
-                print(f"\n-------------------------------------\n")
-                print(f"Step: {episode_num}")
-                print(self.q_table)
+            rewards[episode_num] = total_rewards
+            steps[episode_num] = step
+
+        return rewards, steps, self.q_table
 
     def _show_video(self, episode: int):
         mp4list = glob.glob(f'{self.video_folder}/{self.name_prefix}-episode-{episode}.mp4')

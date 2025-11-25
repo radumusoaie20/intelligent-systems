@@ -1,4 +1,4 @@
-def exponential_decay(episode: int, epsilon_start=1.0, epsilon_min=0.01, decay_rate=0.995):
+def exponential_decay(episode: int, epsilon_start=0.9, epsilon_min=0.01, decay_rate=0.995):
     return max(epsilon_min, epsilon_start * (decay_rate ** episode))
 
 def linear_decay(episode: int, epsilon_start=1.0, epsilon_min=0.01, max_episodes=1000):

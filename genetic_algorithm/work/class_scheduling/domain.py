@@ -1,7 +1,4 @@
 from enum import Enum
-from random import random
-from typing import List
-
 
 class Time:
     def __init__(self, hour, minute, second):
@@ -239,14 +236,3 @@ class SectionSchedule:
 
     def __hash__(self):
         return self.time_start.__hash__() * 17 + self.section.__hash__() * 13 + self.room.__hash__() * 31 + self.day * 23
-
-class ClassScheduling:
-
-    def __init__(self, class_duration: int, pause_duration: int,
-                teaching_days: int, sections: List[Section], day_time_start: Time, day_time_end: Time):
-        self.class_duration = class_duration
-        self.pause_duration = pause_duration
-        self.teaching_days = teaching_days
-        self.sections = sections
-        self.day_time_start = day_time_start
-        self.day_time_end = day_time_end

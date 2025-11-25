@@ -67,10 +67,28 @@ def make_create_individual(sections, section_slots, rooms):
     return create_individual_solution
 
 
-# Parent selection (random selection)
+# Parent selection (tournament selection)
 def select_func(population: list[list[SectionSchedule]], fitness_scores: list[float]):
-    parent1, parent2 =  sample(population, k=2)
-    return parent1, parent2
+
+   candidates = sample(list(enumerate(population)), k=5)
+   parent1, parent2 = None, None
+   max1, max2 = 0, 0
+   p1_idx = 0
+
+   for i, section in candidates:
+       if fitness_scores[i] > max1:
+           max1 = fitness_scores[i]
+           parent1 = section
+           p1_idx = i
+
+   candidates = sample(candidates, k=5)
+   for i, section in candidates:
+       if fitness_scores[i] > max2 and i != p1_idx:
+           max2 = fitness_scores[i]
+           parent2 = section
+
+   return parent1, parent2
+
 
 # Cross-over
 # A solution is basically a list of schedules for sections (the order is maintained because sections is a list)
@@ -127,15 +145,15 @@ def make_fitness_func(day_start: Time, day_end: Time):
 
                 # Room conflict (both sections take place in the same room at approximately the same time)
                 if a.room == b.room and not (a.is_before(b) or a.is_after(b)):
-                    penalty += 1000
+                    penalty += 100000
 
                 # Professor conflict (the sections are being taught by the same professor at approximately the same time)
                 if a.section.professor == b.section.professor and not (a.is_before(b) or a.is_after(b)):
-                    penalty += 1000
+                    penalty += 100000
 
                 # Group conflict (a group takes two sections at the same time)
                 if not a.section.group.isdisjoint(b.section.group) and not (a.is_before(b) or a.is_after(b)):
-                    penalty += 1000
+                    penalty += 100000
 
         # Soft constraints (Help with optimization)
 

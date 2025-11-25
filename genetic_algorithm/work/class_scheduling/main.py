@@ -2,7 +2,7 @@ from genetic_algorithm.impl.genetic_algorithm import GeneticAlgorithm
 from genetic_algorithm.work.class_scheduling.class_scheduling import (make_section_slots, make_create_individual, select_func, crossover_func,
                                                                       make_mutation, make_fitness_func)
 from genetic_algorithm.work.class_scheduling.domain import *
-from genetic_algorithm.work.class_scheduling.print_utils import display_week_schedule, interactive_schedule
+from genetic_algorithm.work.class_scheduling.print_utils import interactive_schedule
 
 # Time
 
@@ -24,9 +24,9 @@ duration = Time(1, 30, 0)
 
 # Specializari
 
-spec_calc = Specialization('Calculatoare')
-spec_ti = Specialization('TI')
-spec_ism = Specialization('ISM')
+spec_calc = Specialization('Computer Engineering')
+spec_ti = Specialization('Information Technology')
+spec_ism = Specialization('Multimedia System Engineering')
 
 specializations = [spec_calc, spec_ti, spec_ism, spec_ism]
 
@@ -49,36 +49,36 @@ groups = [g_c_41_1, g_c_41_2, g_c_42_1, g_c_42_2, g_c_42_3,
 
 # Profesori
 
-prof_arpad = Professor('Gellert Arpad', t_09_40, t_21_10)
-prof_morariu = Professor('Morariu Daniel', t_09_40, t_21_10)
-prof_vasile = Professor('Craciunean Vasile', t_16_20, t_18_00)
-prof_bala = Professor('Zamfirescu Bala', t_18_00, t_21_10)
-prof_andrei = Professor('Patrausanu Andrei', t_16_20, t_21_10)
-prof_florea = Professor('Florea Adrian', t_08_00, t_21_10)
-prof_brad = Professor('Brad Remus', t_09_40, t_19_40)
-prof_bratu = Professor('Bratu Marius', t_16_20, t_21_10)
-prof_daniel = Professor('Craciunean Daniel', t_14_40, t_21_10)
-prof_neghina = Professor('Neghina Mihai', t_08_00, t_21_10)
-prof_matei = Professor('Matei Alexandru', t_11_20, t_21_10)
-prof_liviu = Professor('Popescu Liviu', t_08_00, t_21_10)
-prof_berghia = Professor('Berghia Stefania', t_08_00, t_19_40)
-prof_beleiu = Professor('Beleiu Iulia', t_16_20, t_19_40)
-prof_zabava = Professor('Zabava Dumitru', t_18_00, t_21_10)
-prof_catalina = Professor('Neghina Catalina', t_08_00, t_21_10)
-prof_pitic = Professor('Pitic Antoniu', t_08_00, t_21_10)
-prof_constantinescu = Professor('Constantinescu Constantin', t_08_00, t_19_40)
-prof_barglazan = Professor('Barglazan Adrian', t_18_00, t_21_10)
-prof_serbanescu = Professor('Serbanescu Andrei', t_18_00, t_21_10)
-prof_cretulescu = Professor('Cretulescu Radu', t_08_00, t_14_40)
-prof_breazu =  Professor('Breazu Macarie', t_09_40, t_19_40)
+prof_ga = Professor('GA', t_09_40, t_21_10)
+prof_md = Professor('MD', t_09_40, t_21_10)
+prof_cv = Professor('CV', t_16_20, t_18_00)
+prof_zb = Professor('ZB', t_18_00, t_21_10)
+prof_pa = Professor('PA', t_16_20, t_21_10)
+prof_fa = Professor('FA', t_08_00, t_21_10)
+prof_br = Professor('BR', t_09_40, t_19_40)
+prof_bm = Professor('BM', t_16_20, t_21_10)
+prof_cd = Professor('CD', t_14_40, t_21_10)
+prof_nm = Professor('NM', t_08_00, t_21_10)
+prof_ma = Professor('MA', t_11_20, t_21_10)
+prof_pv = Professor('PV', t_08_00, t_21_10)
+prof_bs = Professor('BS', t_08_00, t_19_40)
+prof_bi = Professor('BI', t_16_20, t_19_40)
+prof_zd = Professor('ZD', t_18_00, t_21_10)
+prof_nc = Professor('NC', t_08_00, t_21_10)
+prof_pi = Professor('PI', t_08_00, t_21_10)
+prof_cc = Professor('CC', t_08_00, t_19_40)
+prof_ba = Professor('BA', t_18_00, t_21_10)
+prof_sa = Professor('SA', t_18_00, t_21_10)
+prof_cr = Professor('CR', t_08_00, t_14_40)
+prof_bre =  Professor('BRE', t_09_40, t_19_40)
 
 professors = [
-    prof_arpad, prof_morariu, prof_vasile, prof_bala,
-    prof_andrei, prof_florea, prof_bratu, prof_daniel,
-    prof_neghina, prof_matei, prof_liviu,
-    prof_beleiu, prof_berghia, prof_zabava, prof_catalina, prof_pitic,
-    prof_constantinescu, prof_serbanescu, prof_cretulescu, prof_breazu,
-    prof_brad, prof_barglazan
+    prof_ga, prof_md, prof_cv, prof_zb,
+    prof_pa, prof_fa, prof_br, prof_cd,
+    prof_nm, prof_ma, prof_pv,
+    prof_bi, prof_bs, prof_zd, prof_nc, prof_pi,
+    prof_cc, prof_sa, prof_cr, prof_bre,
+    prof_bm, prof_ba
 ]
 
 # Subiecte
@@ -136,94 +136,94 @@ sections = [
     # ISM
 
     # Courses
-    Section(MeetingType.COURSE, sub_game_prg, {g_ism_41_1, g_ism_41_2}, prof_pitic, duration),
-    Section(MeetingType.COURSE, sub_ml, {g_ism_41_1, g_ism_41_2}, prof_morariu, duration),
-    Section(MeetingType.COURSE, sub_encoding, {g_ism_41_1, g_ism_41_2}, prof_breazu, duration),
-    Section(MeetingType.COURSE, sub_signal, {g_ism_41_1, g_ism_41_2}, prof_catalina, duration),
-    Section(MeetingType.COURSE, sub_img_proc, {g_ism_41_1, g_ism_41_2}, prof_brad, duration),
-    Section(MeetingType.COURSE, sub_discrete_sys, {g_ism_41_1, g_ism_41_2}, prof_cretulescu, duration),
-    Section(MeetingType.COURSE, sub_android, {g_ism_41_1, g_ism_41_2}, prof_daniel, duration),
+    Section(MeetingType.COURSE, sub_game_prg, {g_ism_41_1, g_ism_41_2}, prof_pi, duration),
+    Section(MeetingType.COURSE, sub_ml, {g_ism_41_1, g_ism_41_2}, prof_ma, duration),
+    Section(MeetingType.COURSE, sub_encoding, {g_ism_41_1, g_ism_41_2}, prof_bre, duration),
+    Section(MeetingType.COURSE, sub_signal, {g_ism_41_1, g_ism_41_2}, prof_nc, duration),
+    Section(MeetingType.COURSE, sub_img_proc, {g_ism_41_1, g_ism_41_2}, prof_br, duration),
+    Section(MeetingType.COURSE, sub_discrete_sys, {g_ism_41_1, g_ism_41_2}, prof_cr, duration),
+    Section(MeetingType.COURSE, sub_android, {g_ism_41_1, g_ism_41_2}, prof_md, duration),
     # Lab
-    Section(MeetingType.LAB, sub_game_prg, {g_ism_41_1, g_ism_41_2}, prof_serbanescu, duration),
-    Section(MeetingType.LAB, sub_ml, {g_ism_41_1}, prof_constantinescu, duration),
-    Section(MeetingType.LAB, sub_ml, {g_ism_41_2}, prof_constantinescu, duration),
-    Section(MeetingType.LAB, sub_encoding, {g_ism_41_1}, prof_barglazan, duration),
-    Section(MeetingType.LAB, sub_encoding, {g_ism_41_2}, prof_barglazan, duration),
-    Section(MeetingType.LAB, sub_signal, {g_ism_41_1}, prof_catalina, duration),
-    Section(MeetingType.LAB, sub_signal, {g_ism_41_2}, prof_catalina, duration),
-    Section(MeetingType.LAB, sub_img_proc, {g_ism_41_1}, prof_catalina, duration),
-    Section(MeetingType.LAB, sub_img_proc, {g_ism_41_2}, prof_catalina, duration),
-    Section(MeetingType.LAB, sub_android, {g_ism_41_1}, prof_daniel, duration),
-    Section(MeetingType.LAB, sub_android, {g_ism_41_2}, prof_daniel, duration),
-    Section(MeetingType.LAB, sub_discrete_sys, {g_ism_41_1}, prof_cretulescu, duration),
-    Section(MeetingType.LAB, sub_discrete_sys, {g_ism_41_2}, prof_cretulescu, duration),
+    Section(MeetingType.LAB, sub_game_prg, {g_ism_41_1, g_ism_41_2}, prof_sa, duration),
+    Section(MeetingType.LAB, sub_ml, {g_ism_41_1}, prof_cc, duration),
+    Section(MeetingType.LAB, sub_ml, {g_ism_41_2}, prof_cc, duration),
+    Section(MeetingType.LAB, sub_encoding, {g_ism_41_1}, prof_ba, duration),
+    Section(MeetingType.LAB, sub_encoding, {g_ism_41_2}, prof_ba, duration),
+    Section(MeetingType.LAB, sub_signal, {g_ism_41_1}, prof_nc, duration),
+    Section(MeetingType.LAB, sub_signal, {g_ism_41_2}, prof_nc, duration),
+    Section(MeetingType.LAB, sub_img_proc, {g_ism_41_1}, prof_nc, duration),
+    Section(MeetingType.LAB, sub_img_proc, {g_ism_41_2}, prof_nc, duration),
+    Section(MeetingType.LAB, sub_android, {g_ism_41_1}, prof_md, duration),
+    Section(MeetingType.LAB, sub_android, {g_ism_41_2}, prof_md, duration),
+    Section(MeetingType.LAB, sub_discrete_sys, {g_ism_41_1}, prof_cr, duration),
+    Section(MeetingType.LAB, sub_discrete_sys, {g_ism_41_2}, prof_cr, duration),
 
     # TI
 
     # Courses
-    Section(MeetingType.COURSE, sub_android, g_c_ti, prof_vasile, duration),
-    Section(MeetingType.COURSE, sub_int_sys, g_c_ti, prof_bala, duration),
-    Section(MeetingType.COURSE, sub_signal, {g_ti_41}, prof_catalina, duration),
-    Section(MeetingType.COURSE, sub_img_proc, {g_ti_41}, prof_brad, duration),
-    Section(MeetingType.COURSE, sub_soac, g_c_ti, prof_florea, duration),
-    Section(MeetingType.COURSE, sub_cybersec, g_c_ti, prof_brad, duration),
-    Section(MeetingType.COURSE, sub_ml, g_c_ti, prof_morariu, duration),
+    Section(MeetingType.COURSE, sub_android, g_c_ti, prof_cv, duration),
+    Section(MeetingType.COURSE, sub_int_sys, g_c_ti, prof_zb, duration),
+    Section(MeetingType.COURSE, sub_signal, {g_ti_41}, prof_nc, duration),
+    Section(MeetingType.COURSE, sub_img_proc, {g_ti_41}, prof_br, duration),
+    Section(MeetingType.COURSE, sub_soac, g_c_ti, prof_fa, duration),
+    Section(MeetingType.COURSE, sub_cybersec, g_c_ti, prof_br, duration),
+    Section(MeetingType.COURSE, sub_ml, g_c_ti, prof_md, duration),
     # Lab
-    Section(MeetingType.LAB, sub_android, {g_ti_41}, prof_daniel, duration),
-    Section(MeetingType.LAB, sub_int_sys, {g_ti_41}, prof_matei, duration),
-    Section(MeetingType.LAB, sub_signal, {g_ti_41}, prof_catalina, duration),
-    Section(MeetingType.LAB, sub_img_proc, {g_ti_41}, prof_arpad, duration),
-    Section(MeetingType.LAB, sub_soac, {g_ti_41}, prof_andrei, duration),
-    Section(MeetingType.LAB, sub_cybersec, {g_ti_41}, prof_liviu, duration),
-    Section(MeetingType.LAB, sub_ml, {g_ti_41}, prof_berghia, duration),
+    Section(MeetingType.LAB, sub_android, {g_ti_41}, prof_md, duration),
+    Section(MeetingType.LAB, sub_int_sys, {g_ti_41}, prof_ma, duration),
+    Section(MeetingType.LAB, sub_signal, {g_ti_41}, prof_nc, duration),
+    Section(MeetingType.LAB, sub_img_proc, {g_ti_41}, prof_ga, duration),
+    Section(MeetingType.LAB, sub_soac, {g_ti_41}, prof_pa, duration),
+    Section(MeetingType.LAB, sub_cybersec, {g_ti_41}, prof_pv, duration),
+    Section(MeetingType.LAB, sub_ml, {g_ti_41}, prof_bs, duration),
 
     # C
 
     # Courses
-    Section(MeetingType.COURSE, sub_signal, g_c, prof_neghina, duration),
-    Section(MeetingType.COURSE, sub_img_proc, g_c, prof_brad, duration),
+    Section(MeetingType.COURSE, sub_signal, g_c, prof_nm, duration),
+    Section(MeetingType.COURSE, sub_img_proc, g_c, prof_br, duration),
 
     # Lab
 
-    Section(MeetingType.LAB, sub_img_proc, {g_c_41_1}, prof_arpad, duration),
-    Section(MeetingType.LAB, sub_ml, {g_c_41_1}, prof_morariu, duration),
-    Section(MeetingType.LAB, sub_soac, {g_c_41_1}, prof_andrei, duration),
-    Section(MeetingType.LAB, sub_cybersec, {g_c_41_1}, prof_bratu, duration),
-    Section(MeetingType.LAB, sub_android, {g_c_41_1}, prof_daniel, duration),
-    Section(MeetingType.LAB, sub_signal, {g_c_41_1}, prof_neghina, duration),
-    Section(MeetingType.LAB, sub_int_sys, {g_c_41_1}, prof_matei, duration),
+    Section(MeetingType.LAB, sub_img_proc, {g_c_41_1}, prof_ga, duration),
+    Section(MeetingType.LAB, sub_ml, {g_c_41_1}, prof_md, duration),
+    Section(MeetingType.LAB, sub_soac, {g_c_41_1}, prof_nc, duration),
+    Section(MeetingType.LAB, sub_cybersec, {g_c_41_1}, prof_br, duration),
+    Section(MeetingType.LAB, sub_android, {g_c_41_1}, prof_md, duration),
+    Section(MeetingType.LAB, sub_signal, {g_c_41_1}, prof_nm, duration),
+    Section(MeetingType.LAB, sub_int_sys, {g_c_41_1}, prof_ma, duration),
 
-    Section(MeetingType.LAB, sub_img_proc, {g_c_41_2}, prof_arpad, duration),
-    Section(MeetingType.LAB, sub_ml, {g_c_41_2}, prof_morariu, duration),
-    Section(MeetingType.LAB, sub_soac, {g_c_41_2}, prof_andrei, duration),
-    Section(MeetingType.LAB, sub_cybersec, {g_c_41_2}, prof_bratu, duration),
-    Section(MeetingType.LAB, sub_android, {g_c_41_2}, prof_daniel, duration),
-    Section(MeetingType.LAB, sub_signal, {g_c_41_2}, prof_neghina, duration),
-    Section(MeetingType.LAB, sub_int_sys, {g_c_41_2}, prof_matei, duration),
+    Section(MeetingType.LAB, sub_img_proc, {g_c_41_2}, prof_ga, duration),
+    Section(MeetingType.LAB, sub_ml, {g_c_41_2}, prof_md, duration),
+    Section(MeetingType.LAB, sub_soac, {g_c_41_2}, prof_pa, duration),
+    Section(MeetingType.LAB, sub_cybersec, {g_c_41_2}, prof_bm, duration),
+    Section(MeetingType.LAB, sub_android, {g_c_41_2}, prof_md, duration),
+    Section(MeetingType.LAB, sub_signal, {g_c_41_2}, prof_nm, duration),
+    Section(MeetingType.LAB, sub_int_sys, {g_c_41_2}, prof_ma, duration),
 
-    Section(MeetingType.LAB, sub_img_proc, {g_c_42_1}, prof_arpad, duration),
-    Section(MeetingType.LAB, sub_ml, {g_c_42_1}, prof_berghia, duration),
-    Section(MeetingType.LAB, sub_soac, {g_c_42_1}, prof_beleiu, duration),
-    Section(MeetingType.LAB, sub_cybersec, {g_c_42_1}, prof_liviu, duration),
-    Section(MeetingType.LAB, sub_android, {g_c_42_1}, prof_daniel, duration),
-    Section(MeetingType.LAB, sub_signal, {g_c_42_1}, prof_zabava, duration),
-    Section(MeetingType.LAB, sub_int_sys, {g_c_42_1}, prof_matei, duration),
+    Section(MeetingType.LAB, sub_img_proc, {g_c_42_1}, prof_ga, duration),
+    Section(MeetingType.LAB, sub_ml, {g_c_42_1}, prof_bs, duration),
+    Section(MeetingType.LAB, sub_soac, {g_c_42_1}, prof_bi, duration),
+    Section(MeetingType.LAB, sub_cybersec, {g_c_42_1}, prof_pv, duration),
+    Section(MeetingType.LAB, sub_android, {g_c_42_1}, prof_md, duration),
+    Section(MeetingType.LAB, sub_signal, {g_c_42_1}, prof_zb, duration),
+    Section(MeetingType.LAB, sub_int_sys, {g_c_42_1}, prof_ma, duration),
 
-    Section(MeetingType.LAB, sub_img_proc, {g_c_42_2}, prof_arpad, duration),
-    Section(MeetingType.LAB, sub_ml, {g_c_42_2}, prof_berghia, duration),
-    Section(MeetingType.LAB, sub_soac, {g_c_42_2}, prof_beleiu, duration),
-    Section(MeetingType.LAB, sub_cybersec, {g_c_42_2}, prof_liviu, duration),
-    Section(MeetingType.LAB, sub_android, {g_c_42_2}, prof_daniel, duration),
-    Section(MeetingType.LAB, sub_signal, {g_c_42_2}, prof_zabava, duration),
-    Section(MeetingType.LAB, sub_int_sys, {g_c_42_2}, prof_matei, duration),
+    Section(MeetingType.LAB, sub_img_proc, {g_c_42_2}, prof_ga, duration),
+    Section(MeetingType.LAB, sub_ml, {g_c_42_2}, prof_bs, duration),
+    Section(MeetingType.LAB, sub_soac, {g_c_42_2}, prof_bi, duration),
+    Section(MeetingType.LAB, sub_cybersec, {g_c_42_2}, prof_pv, duration),
+    Section(MeetingType.LAB, sub_android, {g_c_42_2}, prof_md, duration),
+    Section(MeetingType.LAB, sub_signal, {g_c_42_2}, prof_zb, duration),
+    Section(MeetingType.LAB, sub_int_sys, {g_c_42_2}, prof_ma, duration),
 
-    Section(MeetingType.LAB, sub_img_proc, {g_c_42_3}, prof_arpad, duration),
-    Section(MeetingType.LAB, sub_ml, {g_c_42_3}, prof_berghia, duration),
-    Section(MeetingType.LAB, sub_soac, {g_c_42_3}, prof_andrei, duration),
-    Section(MeetingType.LAB, sub_cybersec, {g_c_42_3}, prof_bratu, duration),
-    Section(MeetingType.LAB, sub_android, {g_c_42_3}, prof_daniel, duration),
-    Section(MeetingType.LAB, sub_signal, {g_c_42_3}, prof_neghina, duration),
-    Section(MeetingType.LAB, sub_int_sys, {g_c_42_3}, prof_matei, duration),
+    Section(MeetingType.LAB, sub_img_proc, {g_c_42_3}, prof_ga, duration),
+    Section(MeetingType.LAB, sub_ml, {g_c_42_3}, prof_bs, duration),
+    Section(MeetingType.LAB, sub_soac, {g_c_42_3}, prof_pa, duration),
+    Section(MeetingType.LAB, sub_cybersec, {g_c_42_3}, prof_bm, duration),
+    Section(MeetingType.LAB, sub_android, {g_c_42_3}, prof_cd, duration),
+    Section(MeetingType.LAB, sub_signal, {g_c_42_3}, prof_nm, duration),
+    Section(MeetingType.LAB, sub_int_sys, {g_c_42_3}, prof_ma, duration),
 ]
 
 # precompute time slots
@@ -246,14 +246,13 @@ ga = GeneticAlgorithm(
     selection_func=select_func,
     crossover_func=crossover_func,
     mutation_func=mutation_func,
-    crossover_rate=0.7,
-    mutation_rate=0.8,
+    crossover_rate=0.85,
+    mutation_rate=0.1,
     elitism_count=4,
-    explorative_elitism=False,
-    minimize_solution=True
+    minimize_solution=False
 )
 
-best, best_f = ga.run(num_generations=100, verbose=True)
+best, best_f = ga.run(num_generations=50, verbose=True)
 
 print(f"Gasit configuratia cu scor: {best_f}")
 

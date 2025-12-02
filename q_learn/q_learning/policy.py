@@ -34,13 +34,14 @@ class GreedyPolicy(Policy):
 
 class EpsilonGreedyPolicy(Policy):
 
-    def __init__(self, epsilon=0.2, epsilon_decay_function: Callable[[int, float], float]=None):
+    def __init__(self, epsilon=0.2, epsilon_decay_function: Callable[[int, float], float]=None, epsilon_min: float=0.01):
         self.epsilon = epsilon
         self.decay_function = epsilon_decay_function if epsilon_decay_function else lambda ep, eps: epsilon
+        self.epsilon_min = epsilon_min
 
     def select_action(self, state, q_table, env, episode: int = 0):
 
-        self.epsilon = self.decay_function(episode, self.epsilon)
+        self.epsilon = max(self.epsilon_min, self.decay_function(episode, self.epsilon))
 
         if np.random.uniform() < self.epsilon:
             action = env.action_space.sample() # :exploring

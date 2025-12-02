@@ -14,6 +14,8 @@ action_policy: Policy = EpsilonGreedyPolicy(epsilon=0.7)
 
 
 q_learning = QLearning(env=env,
+                       number_of_actions=env.action_space.n,
+                       number_of_states=env.observation_space.n,
                        explorer=action_policy,
                        learning_rate=0.8,
                        discount_factor=0.95,
@@ -22,7 +24,7 @@ q_learning = QLearning(env=env,
                        successful_episode_record_policy=success_trigger,
                        fps=5)
 
-rewards, steps, q_table = q_learning.run(300)
+rewards, steps, q_table = q_learning.run(500)
 
 print(rewards)
 print('\n----------\n')

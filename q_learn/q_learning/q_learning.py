@@ -1,25 +1,19 @@
-import base64
-import glob
-import io
 import os
 from collections.abc import Callable
 
 import cv2
 import gymnasium as gym
-from gymnasium.core import RenderFrame
 from gymnasium.wrappers import RecordVideo
 from pygame.math import clamp
 
 from q_learn.q_learning.policy import Policy
 import numpy as np
 
-from IPython.display import HTML
-from IPython import display
-
-
 class QLearning:
 
     def __init__(self, env: gym.Env, explorer: Policy,
+                 number_of_states: int,
+                 number_of_actions: int,
                  learning_rate: float = 0.3,
                  discount_factor: float = 0.7,
                  shall_record: bool = False,
@@ -27,10 +21,17 @@ class QLearning:
                  video_folder: str = "videos",
                  name_prefix: str = "test",
                  fps: int = 25,
-                 successful_episode_record_policy: Callable[[list[list], list[float]], bool] = lambda frames, rewards: False,):
+                 successful_episode_record_policy: Callable[[list[list], list[float]], bool] = lambda frames, rewards: False,
+                 state_encoder=None, # used for continuous observation spaces (coming from env)
+                 action_decoder=None, # used for continuous action spaces (since q-table actions are indices, we need a decoder to get back in continuous space)
+                 ):
         """
         Construct a Q-Learning object meant to run the tabular Q-learning algorithm.
         :param env: The environment to run the Q-learning on, provided by Gymnasium
+        :param number_of_states: The number of states to use in the Q-learning table
+        :param number_of_actions: The number of actions to use in the Q-learning table
+        :param state_encoder: The state encoder to use in the Q-learning table (for continuous states coming from the environment)
+        :param action_decoder: The action decoder to use in the Q-learning table (for an index to get the real action value)
         :param explorer: The policy to use for exploration
         :param learning_rate: The learning rate
         :param discount_factor: The discount factor (Gamma)
@@ -52,8 +53,23 @@ class QLearning:
 
         self.successful_trigger = successful_episode_record_policy
 
-        n_states = env.observation_space.n
-        n_actions = env.action_space.n
+        if number_of_states is None:
+            raise ValueError("number_of_states cannot be None")
+
+        if number_of_actions is None:
+            raise ValueError("number_of_actions cannot be None")
+
+        n_states = number_of_states
+        n_actions = number_of_actions
+
+        # encoder
+        # since gym gives us the state, if it is continuous, then we need to encode it (to discrete values)
+        self.state_encoder = state_encoder
+
+        # decoder
+        # since q-table gives us the action, we need to decode it from discrete to it's supposed continuous value
+        self.action_decoder = action_decoder
+
 
         self.number_of_states = n_states
         self.number_of_actions = n_actions
@@ -74,7 +90,24 @@ class QLearning:
     def reset_table(self):
         self.q_table = np.zeros((self.number_of_states, self.number_of_actions))
 
-    def run(self, number_of_episodes: int = 5, reset_seed=0):
+
+    def encode_state(self, state):
+        return self.state_encoder(state) if self.state_encoder else state
+
+    def decode_action(self, action_idx):
+        return self.action_decoder(action_idx) if self.action_decoder else action_idx
+
+
+
+    def run(self, number_of_episodes: int = 5,
+                  reset_seed=0):
+
+        """
+        Run Q-Learning episodes
+        :param number_of_episodes: The number of episodes to run
+        :param reset_seed: Seed for the environment reset
+        :return: rewards, steps, Q-table
+        """
 
         # reset Q-Table between runs
         self.reset_table()
@@ -86,7 +119,11 @@ class QLearning:
 
         for episode_num in range(number_of_episodes):
 
-            state, info = self.env.reset(seed=reset_seed)
+            raw_state, info = self.env.reset(seed=reset_seed)
+
+            state = self.encode_state(raw_state)
+
+
             step = 0
             total_rewards = 0
 
@@ -94,31 +131,42 @@ class QLearning:
             episode_rewards = []
 
             # initial frame
-            frame = self.env.render()
-            episode_frames.append(frame)
 
+            if self.shall_record:
+                frame = self.env.render()
+                episode_frames.append(frame)
+
+            success = None
             episode_over = False
             while not episode_over:
 
-                action = self.policy.select_action(state, self.q_table, self.env, episode_num)
+                action_idx = int(self.policy.select_action(state, self.q_table, self.env, episode_num))
 
-                next_state, reward, terminated, truncated, info = self.env.step(action)
+
+
+                # decode action from q-table
+                action = self.decode_action(action_idx)
+
+                raw_next_state, reward, terminated, truncated, info = self.env.step(action)
+
+                # encode for q-table storage
+                next_state = self.encode_state(raw_next_state)
+
 
                 # frame after step
-                frame_after = self.env.render()
-                episode_frames.append(frame_after)
+                if self.shall_record:
+                    frame_after = self.env.render()
+                    episode_frames.append(frame_after)
 
                 episode_rewards.append(reward)
 
-                # Update Q-Learning table
                 delta = (
                         reward
-                        + self.discount_factor * np.max(self.q_table[next_state, :])
-                        - self.q_table[state, action]
+                        + self.discount_factor * np.max(self.q_table[next_state])
+                        - self.q_table[state, action_idx]
                 )
 
-
-                self.q_table[state, action] = self.q_table[state, action] + self.learning_rate * delta
+                self.q_table[state, action_idx] = self.q_table[state, action_idx] + self.learning_rate * delta
 
                 state = next_state
 
@@ -126,11 +174,13 @@ class QLearning:
                 total_rewards += reward
 
                 episode_over = truncated or terminated
+                success = terminated
 
 
             if self.shall_record:
-                if self.successful_trigger(episode_frames, episode_rewards):
-                    self.save_episode_video(episode_frames, episode_num)
+                if self.successful_trigger:
+                    if self.successful_trigger(episode_frames, episode_rewards) or success is True:
+                        self.save_episode_video(episode_frames, episode_num)
 
 
             rewards[episode_num] = total_rewards

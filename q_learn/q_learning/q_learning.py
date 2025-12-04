@@ -9,6 +9,9 @@ from pygame.math import clamp
 from q_learn.q_learning.policy import Policy
 import numpy as np
 
+from q_learn.q_learning.qtypes import RewardHook
+
+
 class QLearning:
 
     def __init__(self, env: gym.Env, explorer: Policy,
@@ -95,34 +98,36 @@ class QLearning:
         return self.state_encoder(state) if self.state_encoder else state
 
     def decode_action(self, action_idx):
-        return self.action_decoder(action_idx) if self.action_decoder else action_idx
+        return self.action_decoder([action_idx]) if self.action_decoder else action_idx
 
 
 
     def run(self, number_of_episodes: int = 5,
-                  reset_seed=0):
+            averaging_step: int = 100,
+            reward_hook_func: RewardHook = None):
 
         """
         Run Q-Learning episodes
         :param number_of_episodes: The number of episodes to run
-        :param reset_seed: Seed for the environment reset
+        :param averaging_step: The episode multiple at which to average the reward
+        :param reward_hook_func: Function to alter reward result that is given by the Gymnasium environment
         :return: rewards, steps, Q-table
         """
 
-        # reset Q-Table between runs
-        self.reset_table()
-
         # Returned data
-        rewards = np.zeros(number_of_episodes)
-        steps = np.zeros(number_of_episodes)
+        rewards = []
+
+
+        average_rewards = []
 
 
         for episode_num in range(number_of_episodes):
 
-            raw_state, info = self.env.reset(seed=reset_seed)
+            raw_state, info = self.env.reset()
 
             state = self.encode_state(raw_state)
 
+            assert 0 <= state < self.number_of_states
 
             step = 0
             total_rewards = 0
@@ -140,17 +145,24 @@ class QLearning:
             episode_over = False
             while not episode_over:
 
-                action_idx = int(self.policy.select_action(state, self.q_table, self.env, episode_num))
-
-
+                action_idx = self.policy.select_action(state, self.q_table, self.env, episode_num)
 
                 # decode action from q-table
                 action = self.decode_action(action_idx)
 
                 raw_next_state, reward, terminated, truncated, info = self.env.step(action)
 
+                if reward_hook_func:
+                   reward = reward_hook_func(reward=reward,
+                                             env=self.env,
+                                             state=raw_state,
+                                             next_state=raw_next_state,
+                                             action=action)
+
                 # encode for q-table storage
                 next_state = self.encode_state(raw_next_state)
+
+                assert 0 <= next_state < self.number_of_states
 
 
                 # frame after step
@@ -183,10 +195,14 @@ class QLearning:
                         self.save_episode_video(episode_frames, episode_num)
 
 
-            rewards[episode_num] = total_rewards
-            steps[episode_num] = step
+            rewards.append(total_rewards)
 
-        return rewards, steps, self.q_table
+            if (episode_num + 1) % averaging_step == 0:
+                average_rewards.append(np.mean(rewards))
+                rewards = []
+
+
+        return average_rewards, self.q_table
 
     def save_episode_video(self, frames: list[list], episode_num: int):
         os.makedirs(self.video_folder, exist_ok=True)

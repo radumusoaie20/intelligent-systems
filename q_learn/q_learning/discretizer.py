@@ -1,5 +1,7 @@
 import numpy as np
 import gymnasium as gym
+from numpy import dtype
+
 
 class UniformStateDiscretizer:
     def __init__(self, low, high, bins):
@@ -33,13 +35,48 @@ class UniformStateDiscretizer:
         return np.ravel_multi_index(indices, self.bins)
 
 
-class Uniform1DActionDecoder:
-    def __init__(self, low, high, bins):
-        self.low = np.array(low)
-        self.high = np.array(high)
-        self.bins = np.array(bins)
-        self.widths = (high - low) / bins
+class UniformActionDecoder:
+    """
+    Decodes discrete indices to continuous actions for N-dimensional action spaces.
+    """
+
+    def __init__(self, lows, highs, bins, strategy="center"):
+        self.lows = np.array(lows, dtype=float)
+        self.highs = np.array(highs, dtype=float)
+        self.bins = np.array(bins, dtype=int)
+        self.strategy = strategy
+
+        self.widths = (self.highs - self.lows) / self.bins
+        self.dim = len(self.lows)
+
+        if len(self.highs) != self.dim or len(self.bins) != self.dim:
+            raise ValueError("lows, highs, bins must all have the same length")
+
+    def __call__(self, indices):
+        """
+        :param indices: An array of discrete indices. (have to be integers)
+        Returns: np.array of decoded continuous action values
+        """
+        indices = np.array(indices, dtype=int)
+        if len(indices) != self.dim:
+            raise ValueError(f"indices length {len(indices)} != number of dimensions {self.dim}")
+
+        actions = np.zeros(self.dim)
 
 
-    def __call__(self, action_index):
-        return self.low + self.widths * (action_index + 0.5)
+        for i in range(self.dim):
+            idx = np.clip(indices[i], 0, self.bins[i] - 1)
+            if self.strategy == "left":
+                actions[i] = self.lows[i] + idx * self.widths[i]
+            elif self.strategy == "right":
+                actions[i] = self.lows[i] + (idx + 1) * self.widths[i]
+            elif self.strategy == "center":
+                actions[i] = self.lows[i] + (idx + 0.5) * self.widths[i]
+            else:
+                raise ValueError(f"Unknown strategy {self.strategy}")
+
+        return actions
+
+
+
+

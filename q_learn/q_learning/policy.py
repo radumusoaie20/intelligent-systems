@@ -24,7 +24,7 @@ class Policy(ABC):
 
 class RandomPolicy(Policy):
     def select_action(self, state, q_table, env, episode: int = 0):
-        return env.action_space.sample()
+        return np.random.randint(q_table.shape[1])
 
 
 class GreedyPolicy(Policy):
@@ -44,7 +44,7 @@ class EpsilonGreedyPolicy(Policy):
         self.epsilon = max(self.epsilon_min, self.decay_function(episode, self.epsilon))
 
         if np.random.uniform() < self.epsilon:
-            action = env.action_space.sample() # :exploring
+            action = np.random.randint(q_table.shape[1])
         else:
             action = np.argmax(q_table[state])
 

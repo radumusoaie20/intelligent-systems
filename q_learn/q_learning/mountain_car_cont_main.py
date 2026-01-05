@@ -1,5 +1,4 @@
 import math
-
 import numpy as np
 import  gymnasium as gym
 
@@ -26,7 +25,7 @@ state_encoder = UniformStateDiscretizer(low=low, high=high, bins=bins)
 
 low = [-1]
 high = [1]
-bins = [5]
+bins = [10]
 
 number_of_actions = int(np.prod(bins))
 
@@ -34,7 +33,7 @@ action_decoder = UniformActionDecoder(lows=low, highs=high, bins=bins, strategy=
 
 # Setup
 
-episodes = 2000
+episodes = 700
 
 epsilon_start = 1.0
 decay_rate = 0.8
@@ -47,8 +46,8 @@ agent = QLearning(env=train_env,
                   explorer=policy,
                   state_encoder=state_encoder,
                   action_decoder=action_decoder,
-                  learning_rate=0.1,
-                  discount_factor=0.8,
+                  learning_rate=0.05,
+                  discount_factor=0.99,
                   number_of_actions=number_of_actions,
                   number_of_states=number_of_states
                   )
@@ -60,10 +59,10 @@ def reward_func(reward: float, env: gym.Env, state: gym.core.ObsType, next_state
     position, velocity = next_state
 
     # we want to encourage moving right
-    reward += (position + 1.2) * 0.05 # (+ 1.2 to go from [-1.2, 0.6] to [0, 1.8])
+    reward += (position + 1.2) * 0.1 # (+ 1.2 to go from [-1.2, 0.6] to [0, 1.8])
 
     # encourage high velocity as well (since high velocity will help in reaching the goal without needing constant acceleration)
-    reward += abs(velocity) * 0.2
+    reward += abs(velocity) * 0.5
 
     return reward
 
@@ -79,7 +78,11 @@ plt.show()
 
 train_env.close()
 
+np.save('table.npy', q_table)
+
 # Testing
+
+arr = np.load('table.npy')
 
 test_env = gym.make('MountainCarContinuous-v0', render_mode='rgb_array')
 
@@ -94,7 +97,7 @@ eval_agent = QLearning(env=test_env,
                        shall_record=True,
                        episode_record_policy=lambda _: True)
 
-eval_agent.q_table = q_table
+eval_agent.q_table = arr
 
 rwds, _= eval_agent.run(number_of_episodes=5)
 

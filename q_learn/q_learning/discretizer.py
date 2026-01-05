@@ -1,6 +1,5 @@
 import numpy as np
 import gymnasium as gym
-from numpy import dtype
 
 
 class UniformStateDiscretizer:

@@ -1,7 +1,7 @@
 from langchain_ollama import OllamaLLM
 
-mixtralOllama = OllamaLLM(
-    model="ollama/mistral",
+ollama = OllamaLLM(
+    model="ollama/gemma3:1b",
     base_url="http://localhost:11434"
 )
 

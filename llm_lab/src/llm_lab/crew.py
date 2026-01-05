@@ -6,7 +6,7 @@ from typing import List
 # you can use the @before_kickoff and @after_kickoff decorators
 # https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
 
-from llms import mixtralOllama
+from llms import ollama
 
 @CrewBase
 class LlmLab():
@@ -26,7 +26,7 @@ class LlmLab():
         return Agent(
             config=self.agents_config['researcher'], # type: ignore[index]
             verbose=True,
-            llm=mixtralOllama
+            llm=ollama
         )
 
     @agent
@@ -34,7 +34,7 @@ class LlmLab():
         return Agent(
             config=self.agents_config['reporting_analyst'], # type: ignore[index]
             verbose=True,
-            llm=mixtralOllama
+            llm=ollama
         )
 
     # To learn more about structured task outputs,

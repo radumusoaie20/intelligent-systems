@@ -1,68 +1,121 @@
+import yaml
 from crewai import Agent, Crew, Process, Task
-from crewai.project import CrewBase, agent, crew, task
-from crewai.agents.agent_builder.base_agent import BaseAgent
-from typing import List
-# If you want to run a snippet of code before or after the crew starts,
-# you can use the @before_kickoff and @after_kickoff decorators
-# https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
 
-from llms import ollama
+from tools.wiki_search_tool import WikipediaSummaryTool
 
-@CrewBase
+from llms import ollama_1b, ollama_270m
+
 class LlmLab():
     """LlmLab crew"""
 
-    agents: List[BaseAgent]
-    tasks: List[Task]
 
-    # Learn more about YAML configuration files here:
-    # Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
-    # Tasks: https://docs.crewai.com/concepts/tasks#yaml-configuration-recommended
-    
-    # If you would like to add tools to your agents, you can learn more about it here:
-    # https://docs.crewai.com/concepts/agents#agent-tools
-    @agent
-    def researcher(self) -> Agent:
-        return Agent(
-            config=self.agents_config['researcher'], # type: ignore[index]
-            verbose=True,
-            llm=ollama
-        )
+    def __init__(self, agents_config_path: str = './config/agents.yaml', tasks_config_path: str = './config/tasks.yaml'):
+        # Load YAML configs
+        with open(agents_config_path) as f:
+            self.agents_config = yaml.safe_load(f)
 
-    @agent
-    def reporting_analyst(self) -> Agent:
-        return Agent(
-            config=self.agents_config['reporting_analyst'], # type: ignore[index]
-            verbose=True,
-            llm=ollama
-        )
+        with open(tasks_config_path) as f:
+            self.tasks_config = yaml.safe_load(f)
 
-    # To learn more about structured task outputs,
-    # task dependencies, and task callbacks, check out the documentation:
-    # https://docs.crewai.com/concepts/tasks#overview-of-a-task
-    @task
-    def research_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['research_task'], # type: ignore[index]
-        )
 
-    @task
-    def reporting_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['reporting_task'], # type: ignore[index]
-            output_file='report.md'
-        )
+        print(self.agents_config)
+        print(self.tasks_config)
 
-    @crew
+        print(type(self.agents_config))
+        print(type(self.tasks_config))
+
+        print(type(self.agents_config['primary_author']))
+
+        self.wiki_tool= WikipediaSummaryTool()
+
+
     def crew(self) -> Crew:
-        """Creates the LlmLab crew"""
-        # To learn how to add knowledge sources to your crew, check out the documentation:
-        # https://docs.crewai.com/concepts/knowledge#what-is-knowledge
 
-        return Crew(
-            agents=self.agents, # Automatically created by the @agent decorator
-            tasks=self.tasks, # Automatically created by the @task decorator
-            process=Process.sequential,
+        # create agents
+        primary_author = Agent(
+            role=self.agents_config['primary_author']['role'],
+            goal=self.agents_config['primary_author']['goal'],
+            backstory=self.agents_config['primary_author']['backstory'],
             verbose=True,
-            # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
+            llm=ollama_270m
+        )
+
+        claim_extractor = Agent(
+            role=self.agents_config['claim_extractor']['role'],
+            goal=self.agents_config['claim_extractor']['goal'],
+            backstory=self.agents_config['claim_extractor']['backstory'],
+            verbose=True,
+            llm=ollama_1b
+        )
+
+        fact_checker = Agent(
+            role=self.agents_config['fact_checker']['role'],
+            goal=self.agents_config['fact_checker']['goal'],
+            backstory=self.agents_config['fact_checker']['backstory'],
+            verbose=True,
+            llm=ollama_1b,
+            tools=[self.wiki_tool]
+        )
+
+        skeptic = Agent(
+            role=self.agents_config['skeptic']['role'],
+            goal=self.agents_config['skeptic']['goal'],
+            backstory=self.agents_config['skeptic']['backstory'],
+            verbose=True,
+            llm=ollama_1b
+        )
+
+        editor = Agent(
+            role=self.agents_config['editor']['role'],
+            goal=self.agents_config['editor']['goal'],
+            backstory=self.agents_config['editor']['backstory'],
+            verbose=True,
+            llm=ollama_1b
+        )
+
+        agents = [primary_author, claim_extractor, fact_checker, skeptic, editor]
+
+        # create tasks
+        write_report = Task(
+            description=self.tasks_config['write_report']['description'],
+            expected_output=self.tasks_config['write_report']['expected_output'],
+            agent=primary_author
+        )
+
+        extract_claims = Task(
+            description=self.tasks_config['extract_claims']['description'],
+            expected_output=self.tasks_config['extract_claims']['expected_output'],
+            agent=claim_extractor,
+            context=[write_report]
+        )
+
+        verify_claims = Task(
+            description=self.tasks_config['verify_claims']['description'],
+            expected_output=self.tasks_config['verify_claims']['expected_output'],
+            agent=fact_checker,
+            context=[extract_claims]
+        )
+
+        skeptic_review = Task(
+            description=self.tasks_config['skeptic_review']['description'],
+            expected_output=self.tasks_config['skeptic_review']['expected_output'],
+            agent=skeptic,
+            context=[verify_claims, write_report]
+        )
+
+        edit_report = Task(
+            description=self.tasks_config['edit_report']['description'],
+            expected_output=self.tasks_config['edit_report']['expected_output'],
+            agent=editor,
+            context=[write_report, verify_claims, skeptic_review]
+        )
+
+        tasks = [write_report, extract_claims, verify_claims, skeptic_review, edit_report]
+
+        # create crew
+        return Crew(
+            agents=agents,
+            tasks=tasks,
+            process=Process.sequential,
+            verbose=True
         )

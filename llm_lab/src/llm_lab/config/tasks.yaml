@@ -1,17 +1,40 @@
-research_task:
-  description: >
-    Conduct a thorough research about {topic}
-    Make sure you find any interesting and relevant information given
-    the current year is {current_year}.
-  expected_output: >
-    A list with 10 bullet points of the most relevant information about {topic}
-  agent: researcher
+write_report:
+  description: "Write a 200-300 word report on: {topic}. Use a confident, authoritative tone."
+  expected_output: "Report about {topic} that has around 400-500 words."
+  agent: primary_author
 
-reporting_task:
-  description: >
-    Review the context you got and expand each topic into a full section for a report.
-    Make sure the report is detailed and contains any and all relevant information.
+extract_claims:
+  description: "Extract all factual claims."
+  agent: claim_extractor
   expected_output: >
-    A fully fledged report with the main topics, each with a full section of information.
-    Formatted as markdown without '```'
-  agent: reporting_analyst
+    A list of claims extracted from the given text.
+  context:
+    - write_report
+
+verify_claims:
+  description: "Verify each claim and label it. Use Wikipedia in order to find more details about {topic}"
+  agent: fact_checker
+  expected_output: >
+    A list of labeled claims. If a claim is correct then it shall be accompanied with CORRECT, if not, then with FALSE
+    and if none, then PARTIAL, while keeping the structure of the given input (for each claim given it shall be the claim and in paranthesis the status of it)
+  context:
+    - extract_claims
+
+skeptic_review:
+  description: "Identify suspicious or overconfident claims."
+  agent: skeptic
+  expected_output: >
+    A list of claims that seem suspicious or overconfident.
+  context:
+    - write_report
+    - verify_claims
+
+edit_report:
+  description: "Produce a corrected final report."
+  agent: editor
+  expected_output: >
+    The report given from the write_report task, but corrected for mistakes.
+  context:
+    - write_report
+    - verify_claims
+    - skeptic_review

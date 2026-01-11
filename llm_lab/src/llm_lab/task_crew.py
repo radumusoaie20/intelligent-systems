@@ -2,6 +2,8 @@ import yaml
 from crewai import Agent, Crew, Process, Task
 
 from tools.wiki_search_tool import WikipediaSummaryTool
+from tools.calculator_tool import CalculatorTool
+from tools.file_write_tool import FileWriterTool
 
 from llms import ollama_1b, ollama_270m
 
@@ -18,15 +20,9 @@ class LlmLab():
             self.tasks_config = yaml.safe_load(f)
 
 
-        print(self.agents_config)
-        print(self.tasks_config)
-
-        print(type(self.agents_config))
-        print(type(self.tasks_config))
-
-        print(type(self.agents_config['primary_author']))
-
         self.wiki_tool= WikipediaSummaryTool()
+        self.calculator_tool = CalculatorTool()
+        self.file_writer_tool = FileWriterTool()
 
 
     def crew(self) -> Crew:
@@ -62,7 +58,8 @@ class LlmLab():
             goal=self.agents_config['skeptic']['goal'],
             backstory=self.agents_config['skeptic']['backstory'],
             verbose=True,
-            llm=ollama_1b
+            llm=ollama_1b,
+            tools=[self.calculator_tool]
         )
 
         editor = Agent(
@@ -70,7 +67,8 @@ class LlmLab():
             goal=self.agents_config['editor']['goal'],
             backstory=self.agents_config['editor']['backstory'],
             verbose=True,
-            llm=ollama_1b
+            llm=ollama_1b,
+            tools=[self.file_writer_tool]
         )
 
         agents = [primary_author, claim_extractor, fact_checker, skeptic, editor]
@@ -110,7 +108,14 @@ class LlmLab():
             context=[write_report, verify_claims, skeptic_review]
         )
 
-        tasks = [write_report, extract_claims, verify_claims, skeptic_review, edit_report]
+        write_report_to_file = Task(
+            description=self.tasks_config['write_report_to_file']['description'],
+            expected_output=self.tasks_config['write_report_to_file']['expected_output'],
+            agent=editor,
+            context=[edit_report]
+        )
+
+        tasks = [write_report, extract_claims, verify_claims, skeptic_review, edit_report, write_report_to_file]
 
         # create crew
         return Crew(

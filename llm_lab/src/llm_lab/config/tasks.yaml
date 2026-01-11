@@ -12,29 +12,94 @@ extract_claims:
     - write_report
 
 verify_claims:
-  description: "Verify each claim and label it. Use Wikipedia in order to find more details about {topic}"
+  description: |
+    You are the Fact Checker. You are given a **list of claims** from the previous task. 
+    Do **not** invent new claims. Only verify these claims.
+
+    For each claim:
+    - Use the Wikipedia Summary tool (Action: Wikipedia Summary) exactly with:
+      Thought/Action/Action Input/Observation format.
+    - Pass the claim keywords as the topic to Wikipedia, not the main report topic.
+    - If Wikipedia returns "No summary found", use your own knowledge.
+    - If indecisive, label PARTIAL.
+
+    Final Answer format (must follow exactly):
+    ```
+    Claim: <claim text> (CORRECT/FALSE/PARTIAL)
+    ```
+
   agent: fact_checker
   expected_output: >
-    A list of labeled claims. If a claim is correct then it shall be accompanied with CORRECT, if not, then with FALSE
-    and if none, then PARTIAL, while keeping the structure of the given input (for each claim given it shall be the claim and in paranthesis the status of it)
+    Respond in the Thought/Action/Observation format if needed, but the Final Answer must strictly contain the claims with labels.
+    Example:
+       ```
+       Claim: The Eiffel Tower is in Paris. (CORRECT)
+       Claim: Python is a snake. (CORRECT)
+       Claim: The Eiffel Tower is in Berlin. (FALSE)
+       ```
   context:
     - extract_claims
 
 skeptic_review:
-  description: "Identify suspicious or overconfident claims."
+  description: >
+    Identify suspicious or overconfident claims in the report.
+    First, count how many claims are labeled CORRECT, FALSE, and PARTIAL.
+    Then, calculate Accuracy = number of CORRECT / total claims.
+    Optionally, calculate Precision = number of CORRECT / (number of CORRECT + number of FALSE) ignoring PARTIAL.
+    Use the Calculator tool for all arithmetic.
+    Highlight suspicious claims: those labeled FALSE or PARTIAL.
   agent: skeptic
   expected_output: >
-    A list of claims that seem suspicious or overconfident.
+    Respond in Thought/Action/Observation loops. Always use numeric counts in Calculator.
+    For each claim, label as suspicious if it is FALSE or PARTIAL.
+    Example format:
+
+    ```
+    Thought: I see 4 claims, 2 CORRECT, 1 FALSE, 1 PARTIAL.
+    Action: Calculator
+    Action Input: {"expression": "2 / 4"}
+    Observation: "0.5"
+    
+    Thought: Accuracy is 0.5. Identify suspicious claims.
+    Final Answer:
+    - Accuracy: 50%
+    - Precision (if computed): 66.7%
+    - Suspicious claims: "Claim text here" (FALSE or PARTIAL)
+    ```
   context:
     - write_report
     - verify_claims
+
 
 edit_report:
   description: "Produce a corrected final report."
   agent: editor
   expected_output: >
-    The report given from the write_report task, but corrected for mistakes.
+    The report given from the write_report task, but corrected for mistakes. DO NOT use the "File Writer" tool for this task. Just output
+    the result.
   context:
     - write_report
     - verify_claims
     - skeptic_review
+
+write_report_to_file:
+  description: "Write the given report input to a file"
+  agent: editor
+  expected_output: >
+    Save the given report content to a file using the File Writer tool. 
+    The <topic_lowercase_underscores> is a placeholder for {topic} but lowercase and spaces replaced by underscores.
+    The <report_text> is the given input.
+    The <output from the tool> is the returned string from the used tool.
+    The "directory" input shall be 'reports'. For the Action Input, never forget "directory"
+    
+    You must follow this format EXACTLY:
+      
+    Thought: I need to write the final report for {topic} to a text file.
+    Action: File Writer
+    Action Input: {"filename": "<topic_lowercase_underscores>.txt", "content": "<report_text>", "directory": 'reports'}
+    Observation: <output from the tool>
+    
+    Repeat Thought/Action/Action Input/Observation until the final report is ready.
+    When finished, output:
+    Thought: I now have a complete report
+    Final Answer: <final report text>

@@ -4,7 +4,7 @@ import warnings
 
 from datetime import datetime
 
-from crew import LlmLab
+from task_crew import LlmLab
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
@@ -13,13 +13,17 @@ warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 # Replace with inputs you want to test with, it will automatically
 # interpolate any tasks and agents information
 
-def run():
+def run(config: dict = None):
     """
     Run the crew.
     """
+
+    topic = config["topic"] if "topic" in config else "AI LLMs"
+    year = config["current_year"] if "current_year" in config else datetime.now().year
+
     inputs = {
-        'topic': 'AI LLMs',
-        'current_year': str(datetime.now().year)
+        'topic': topic,
+        'current_year': year
     }
 
     try:
@@ -92,6 +96,9 @@ def run_with_trigger():
         return result
     except Exception as e:
         raise Exception(f"An error occurred while running the crew with trigger: {e}")
+
+
+
 
 def main():
     if len(sys.argv) > 1:

@@ -4,7 +4,7 @@ import warnings
 
 from datetime import datetime
 
-from task_crew import LlmLab
+from llm_lab.task_crew import LlmLab
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 

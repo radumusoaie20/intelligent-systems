@@ -1,17 +1,31 @@
 import yaml
 from crewai import Agent, Crew, Process, Task
 
-from tools.wiki_search_tool import WikipediaSummaryTool
-from tools.calculator_tool import CalculatorTool
-from tools.file_write_tool import FileWriterTool
 
-from llms import ollama_1b, ollama_270m
+from pathlib import Path
+
+from llm_lab.tools.wiki_search_tool import WikipediaSummaryTool
+from llm_lab.tools.calculator_tool import CalculatorTool
+from llm_lab.tools.file_write_tool import FileWriterTool
+
+from llm_lab.llms import ollama_1b, ollama_270m
 
 class LlmLab():
     """LlmLab crew"""
 
 
-    def __init__(self, agents_config_path: str = './config/agents.yaml', tasks_config_path: str = './config/tasks.yaml'):
+    def __init__(self, agents_config_path: str = None, tasks_config_path: str = None):
+
+        cwd = Path.cwd()
+
+        print(cwd)
+
+        if agents_config_path is None:
+            agents_config_path = cwd / "config" / "agents.yaml"
+
+        if tasks_config_path is None:
+            tasks_config_path = cwd / "config" / "tasks.yaml"
+
         # Load YAML configs
         with open(agents_config_path) as f:
             self.agents_config = yaml.safe_load(f)

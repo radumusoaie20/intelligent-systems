@@ -18,6 +18,9 @@ def run(config: dict = None):
     Run the crew.
     """
 
+    if config is None:
+        config = {}
+
     topic = config["topic"] if "topic" in config else "AI LLMs"
     year = config["current_year"] if "current_year" in config else datetime.now().year
 

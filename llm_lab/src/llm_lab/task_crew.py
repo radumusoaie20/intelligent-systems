@@ -16,15 +16,13 @@ class LlmLab():
 
     def __init__(self, agents_config_path: str = None, tasks_config_path: str = None):
 
-        cwd = Path.cwd()
-
-        print(cwd)
+        dir = Path(__file__).parent.resolve()
 
         if agents_config_path is None:
-            agents_config_path = cwd / "config" / "agents.yaml"
+            agents_config_path = dir / "config" / "agents.yaml"
 
         if tasks_config_path is None:
-            tasks_config_path = cwd / "config" / "tasks.yaml"
+            tasks_config_path = dir / "config" / "tasks.yaml"
 
         # Load YAML configs
         with open(agents_config_path) as f:
